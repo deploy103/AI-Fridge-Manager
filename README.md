@@ -53,6 +53,11 @@ OPENAI_MODEL=gpt-5.4
 python gui.py
 ```
 
+## GUI 실행 화면
+<p align="center"> <img src="images/gui.png" alt="AI 냉장고 매니저 GUI 실행 화면" width="900"> </p>
+
+위 이미지는 실제 GUI 실행 화면 예시입니다.
+
 ## CLI 실행 방법
 
 아래 명령을 실행하기 전에 반드시 위의 `실행 전에 먼저 할 것` 단계를 끝내세요.
