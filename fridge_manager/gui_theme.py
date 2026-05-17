@@ -3,26 +3,28 @@ from tkinter import ttk
 
 
 COLORS = {
-    "bg": "#f4efe7",
-    "card": "#fffaf2",
-    "card_alt": "#f8f1e6",
-    "border": "#ded1bf",
-    "text": "#2c2118",
-    "muted": "#6f6455",
-    "accent": "#c96f33",
-    "accent_hover": "#b35e28",
-    "accent_soft": "#f7dcc6",
-    "hero": "#244236",
-    "hero_text": "#fff8ef",
+    "bg": "#eef3f1",
+    "card": "#ffffff",
+    "card_alt": "#f5f8f7",
+    "border": "#d7e0dc",
+    "text": "#1f2a27",
+    "muted": "#63706b",
+    "accent": "#2e7d69",
+    "accent_hover": "#246754",
+    "accent_soft": "#dcefe9",
+    "hero": "#173f45",
+    "hero_text": "#f7fffb",
     "success_bg": "#dff3e4",
     "success_fg": "#1d633c",
-    "warning_bg": "#fbe6c5",
+    "warning_bg": "#fff0cf",
     "warning_fg": "#8f5a12",
-    "info_bg": "#dde7fb",
+    "info_bg": "#e3ecff",
     "info_fg": "#29528e",
     "error_bg": "#f8d9dc",
     "error_fg": "#953840",
-    "button_text": "#fff8f2",
+    "danger": "#bd4b4b",
+    "danger_hover": "#9e3d3d",
+    "button_text": "#ffffff",
 }
 
 FONT_CANDIDATES = (
@@ -60,6 +62,7 @@ def _build_fonts(root):
         "button": (family, 10, "bold"),
         "badge": (family, 9, "bold"),
         "small": (family, 9),
+        "tiny_bold": (family, 8, "bold"),
     }
 
     for font_name in ("TkDefaultFont", "TkTextFont", "TkMenuFont", "TkHeadingFont"):
@@ -101,6 +104,13 @@ def apply_theme(root):
         font=fonts["small"],
     )
     style.configure(
+        "Insight.TLabel",
+        background=COLORS["accent_soft"],
+        foreground=COLORS["text"],
+        font=fonts["small"],
+        padding=(10, 7),
+    )
+    style.configure(
         "Result.TLabel",
         background=COLORS["card"],
         foreground=COLORS["text"],
@@ -140,6 +150,36 @@ def apply_theme(root):
     style.map(
         "Secondary.TButton",
         background=[("active", COLORS["accent_soft"]), ("disabled", COLORS["border"])],
+        foreground=[("disabled", COLORS["muted"])],
+    )
+
+    style.configure(
+        "Compact.TButton",
+        background=COLORS["card_alt"],
+        foreground=COLORS["text"],
+        font=fonts["tiny_bold"],
+        borderwidth=0,
+        focusthickness=0,
+        padding=(10, 9),
+    )
+    style.map(
+        "Compact.TButton",
+        background=[("active", COLORS["accent_soft"]), ("disabled", COLORS["border"])],
+        foreground=[("disabled", COLORS["muted"])],
+    )
+
+    style.configure(
+        "Danger.TButton",
+        background=COLORS["danger"],
+        foreground=COLORS["button_text"],
+        font=fonts["button"],
+        borderwidth=0,
+        focusthickness=0,
+        padding=(14, 10),
+    )
+    style.map(
+        "Danger.TButton",
+        background=[("active", COLORS["danger_hover"]), ("disabled", COLORS["border"])],
         foreground=[("disabled", COLORS["muted"])],
     )
 

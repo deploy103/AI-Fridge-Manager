@@ -4,6 +4,8 @@ import json
 import re
 import unicodedata
 from dataclasses import dataclass
+from datetime import date
+from pathlib import Path
 from typing import Iterable, Literal
 
 
@@ -33,6 +35,8 @@ class AddFoodResult:
 class FridgeItem:
     name: str
     reason: str
+    added_on: str
+    expires_on: str | None = None
 
 
 @dataclass(frozen=True)
@@ -82,7 +86,11 @@ class FridgeManager:
             )
 
         if decision.need_fridge:
-            item = FridgeItem(name=decision.food_name, reason=decision.reason)
+            item = FridgeItem(
+                name=decision.food_name,
+                reason=decision.reason,
+                added_on=date.today().isoformat(),
+            )
             self._items.append(item)
             return AddFoodResult(
                 status="added",
@@ -105,6 +113,80 @@ class FridgeManager:
                 return item
 
         return None
+
+    def update_expiry(self, food_name: str, expires_on: str | None):
+        target_key = normalize_food_name(food_name).casefold()
+        for index, item in enumerate(self._items):
+            item_key = normalize_food_name(item.name).casefold()
+            if item_key == target_key:
+                self._items[index] = FridgeItem(
+                    name=item.name,
+                    reason=item.reason,
+                    added_on=item.added_on,
+                    expires_on=expires_on,
+                )
+                return
+
+    def remove_item(self, food_name: str) -> bool:
+        target_key = normalize_food_name(food_name).casefold()
+        original_count = len(self._items)
+        self._items = [
+            item
+            for item in self._items
+            if normalize_food_name(item.name).casefold() != target_key
+        ]
+        return len(self._items) != original_count
+
+    def clear(self):
+        self._items.clear()
+
+    def load_from_file(self, path: Path):
+        if not path.is_file():
+            return
+
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+        if not isinstance(payload, list):
+            raise ValueError("냉장고 저장 파일 형식이 올바르지 않습니다.")
+
+        loaded_items: list[FridgeItem] = []
+        for raw_item in payload:
+            if not isinstance(raw_item, dict):
+                continue
+
+            name = normalize_food_name(str(raw_item.get("name", "")))
+            reason = str(raw_item.get("reason", "")).strip()
+            added_on = str(raw_item.get("added_on", "")).strip() or date.today().isoformat()
+            expires_on = raw_item.get("expires_on")
+            if expires_on is not None:
+                expires_on = str(expires_on).strip() or None
+
+            if name and reason:
+                loaded_items.append(
+                    FridgeItem(
+                        name=name,
+                        reason=reason,
+                        added_on=added_on,
+                        expires_on=expires_on,
+                    )
+                )
+
+        self._items = loaded_items
+
+    def save_to_file(self, path: Path):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = [
+            {
+                "name": item.name,
+                "reason": item.reason,
+                "added_on": item.added_on,
+                "expires_on": item.expires_on,
+            }
+            for item in self._items
+        ]
+        path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
 
 
 class FridgeAI:
